@@ -34923,6 +34923,8 @@ with pkgs;
 
   shattered-pixel-dungeon = callPackage ../games/shattered-pixel-dungeon { };
 
+  ship-of-harkinian = callPackage ../games/ship-of-harkinian { };
+
   shticker-book-unwritten = callPackage ../games/shticker-book-unwritten {
     openssl = openssl_1_1;
   };
