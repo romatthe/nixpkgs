@@ -34341,6 +34341,8 @@ with pkgs;
 
   cuyo = callPackage ../games/cuyo { };
 
+  daggerfall-unity = callPackage ../games/daggerfall-unity { };
+
   darkplaces = callPackage ../games/darkplaces {};
 
   deliantra-server = callPackage ../games/deliantra/server.nix {
