@@ -10,7 +10,7 @@
 , vulkan-loader
 , xorg
 , zlib
-}:
+ }:
 
 # TODO: Desktopitem + icon
 # TODO: Vulkan? Vulkan is only selected when `-force-vulkan` is enabled, but we don't know if a nixos config supports Vulkan.....
@@ -21,10 +21,10 @@
 let
   daggerfall-unity-unwrapped = stdenv.mkDerivation rec {
     pname = "daggerfall-unity";
-    version = "0.14.5";
+    version = "0.14.5-beta";
 
     src = fetchzip {
-      url = "https://github.com/Interkarma/daggerfall-unity/releases/download/v0.14.5-beta/dfu_linux_64bit-v${version}-beta.zip";
+      url = "https://github.com/Interkarma/daggerfall-unity/releases/download/v0.14.5-beta/dfu_linux_64bit-v${version}.zip";
       sha256 = "8OXIzkyVZgSbDtcB+BreFSHNJqTKP2kNRWgibWwwZtc=";
       stripRoot = false;
     };
@@ -48,13 +48,13 @@ let
     exec = name;
     icon = "DaggerfallUnity128";
     desktopName = "Daggerfall Unity";
-    comment = description;
+    comment = desc;
     categories = [ "Game" ];
   };
 
-  description = "Open Source game engine for The Elder Scrolls II: Daggerfall in Unity";
+  desc = "Open Source game engine for The Elder Scrolls II: Daggerfall in Unity";
 
-in buildFHSUserEnv  {
+in buildFHSUserEnv {
   name = "daggerfall-unity";
   runScript = "${daggerfall-unity-unwrapped}/libexec/DaggerfallUnity.x86_64";
   targetPkgs = pkgs: [
@@ -87,7 +87,7 @@ in buildFHSUserEnv  {
   meta = with lib; {
     homepage = "https://www.dfworkshop.net";
     sourceProvenance = with sourceTypes; [ binaryNativeCode ];
-    description = description;
+    description = desc;
     license = licenses.unfree;
     platforms = [ "x86_64-linux" ];
     architectures = [ "amd64" ];
