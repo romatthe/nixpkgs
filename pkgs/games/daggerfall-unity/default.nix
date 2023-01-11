@@ -31,8 +31,6 @@ let
     dontConfigure = true;
     dontBuild = true;
 
-    sourceRoot = ".";
-
     installPhase = ''
       mkdir -p $out/libexec
       mkdir -p $out/share/icons/hicolor/128x128/apps
@@ -44,10 +42,10 @@ let
 
   desktopItem = makeDesktopItem rec {
     name = "daggerfall-unity";
-    exec = name;
+    exec = "daggerfall-unity";
     icon = "DaggerfallUnity128";
     desktopName = "Daggerfall Unity";
-    comment = desc;
+    comment = "Open Source game engine for The Elder Scrolls II: Daggerfall";
     categories = [ "Game" ];
   };
 
@@ -85,8 +83,8 @@ in buildFHSUserEnv {
 
   meta = with lib; {
     homepage = "https://www.dfworkshop.net";
+    description = "Open Source game engine for The Elder Scrolls II: Daggerfall in Unity";
     sourceProvenance = with sourceTypes; [ binaryNativeCode ];
-    description = desc;
     license = licenses.unfree;
     platforms = [ "x86_64-linux" ];
     architectures = [ "amd64" ];
