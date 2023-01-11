@@ -12,7 +12,6 @@
 , zlib
  }:
 
-# TODO: Desktopitem + icon
 # TODO: Vulkan? Vulkan is only selected when `-force-vulkan` is enabled, but we don't know if a nixos config supports Vulkan.....
 # TODO: Is vulkan-headers required for using `-force-vulkan`?
 # TODO: Darwin version? Impossible due to buildFSHUserEnv?
@@ -24,8 +23,8 @@ let
     version = "0.14.5-beta";
 
     src = fetchzip {
-      url = "https://github.com/Interkarma/daggerfall-unity/releases/download/v0.14.5-beta/dfu_linux_64bit-v${version}.zip";
-      sha256 = "8OXIzkyVZgSbDtcB+BreFSHNJqTKP2kNRWgibWwwZtc=";
+      url = "https://github.com/Interkarma/daggerfall-unity/releases/download/v${version}/dfu_linux_64bit-v${version}.zip";
+      hash = "sha256-8OXIzkyVZgSbDtcB+BreFSHNJqTKP2kNRWgibWwwZtc=";
       stripRoot = false;
     };
 
