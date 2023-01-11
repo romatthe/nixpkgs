@@ -6,14 +6,12 @@
 , alsa-lib
 , libglvnd
 , libpulseaudio
-, vulkan-headers
 , vulkan-loader
 , xorg
 , zlib
  }:
 
 # TODO: Vulkan? Vulkan is only selected when `-force-vulkan` is enabled, but we don't know if a nixos config supports Vulkan.....
-# TODO: Is vulkan-headers required for using `-force-vulkan`?
 # TODO: Darwin version? Impossible due to buildFSHUserEnv?
 # TODO: Mods? Do they work?
 
