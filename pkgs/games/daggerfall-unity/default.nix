@@ -1,4 +1,4 @@
-{ stdenv
+{ stdenvNoCC
 , lib
 , buildFHSUserEnv
 , fetchzip
@@ -16,7 +16,7 @@
 # TODO: Mods? Do they work?
 
 let
-  daggerfall-unity-unwrapped = stdenv.mkDerivation rec {
+  daggerfall-unity-unwrapped = stdenvNoCC.mkDerivation rec {
     pname = "daggerfall-unity";
     version = "0.14.5-beta";
 
