@@ -3,12 +3,15 @@
 , buildFHSUserEnv
 , fetchzip
 , makeDesktopItem
+, symlinkJoin
 , alsa-lib
 , libglvnd
 , libpulseaudio
 , vulkan-loader
 , xorg
 , zlib
+# User-provides directory with mods that should end up under StreamingAssets/
+, modDir ? ./config
  }:
 
 # TODO: Vulkan? Vulkan is only selected when `-force-vulkan` is enabled, but we don't know if a nixos config supports Vulkan.....
@@ -38,7 +41,39 @@ let
     '';
   };
 
-  desktopItem = makeDesktopItem rec {
+  daggerfall-unity-mods = stdenvNoCC.mkDerivation rec {
+    pname = "daggerfall-unity-mods";
+    version = "1.0";
+
+    src = modDir;
+
+    dontUnpack = true;
+    dontConfigure = true;
+    dontBuild = true;
+
+    installPhase = ''
+      ls -lah $src/
+      ls -lah $src/Mods
+      echo "${lib.boolToString (builtins.isPath modDir)}"
+      echo "${modDir}"
+      mkdir -p $out/libexec/DaggerfallUnity_Data/StreamingAssets
+      touch $out/libexec/DaggerfallUnity_Data/StreamingAssets/PleaseKillMe.txt
+    '' + lib.optionalString (builtins.isPath modDir) ''
+      cp -r $src/* $out/libexec/DaggerfallUnity_Data/StreamingAssets
+      touch $out/libexec/DaggerfallUnity_Data/StreamingAssets/PleaseKillMe2.txt
+      ls -lah $out/libexec/DaggerfallUnity_Data/StreamingAssets
+    '';
+  };
+
+  daggerfall-unity-merged = symlinkJoin {
+    name = "daggerfall-unity-merged";
+    paths = [
+      daggerfall-unity-unwrapped
+      daggerfall-unity-mods
+    ];
+  };
+
+  desktopItem = makeDesktopItem {
     name = "daggerfall-unity";
     exec = "daggerfall-unity";
     icon = "DaggerfallUnity128";
@@ -51,7 +86,7 @@ let
 
 in buildFHSUserEnv {
   name = "daggerfall-unity";
-  runScript = "${daggerfall-unity-unwrapped}/libexec/DaggerfallUnity.x86_64";
+  runScript = "${daggerfall-unity-merged}/libexec/DaggerfallUnity.x86_64";
   targetPkgs = pkgs: [
     # Daggerfall
     daggerfall-unity-unwrapped
@@ -82,7 +117,7 @@ in buildFHSUserEnv {
     homepage = "https://www.dfworkshop.net";
     description = "Open Source game engine for The Elder Scrolls II: Daggerfall in Unity";
     sourceProvenance = with sourceTypes; [ binaryNativeCode ];
-    license = licenses.unfree;
+    license = licenses.mit;
     platforms = [ "x86_64-linux" ];
     architectures = [ "amd64" ];
     maintainers = with maintainers; [ romatthe ];
