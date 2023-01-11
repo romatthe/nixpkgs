@@ -61,7 +61,6 @@ in buildFHSUserEnv {
     alsa-lib
     libglvnd
     libpulseaudio
-    vulkan-headers
     vulkan-loader
     zlib
     # Xorg
