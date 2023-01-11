@@ -2,13 +2,21 @@
 , lib
 , buildFHSUserEnv
 , fetchzip
-, autoPatchelfHook
+, makeDesktopItem
 , alsa-lib
 , libglvnd
 , libpulseaudio
+, vulkan-headers
+, vulkan-loader
 , xorg
 , zlib
 }:
+
+# TODO: Desktopitem + icon
+# TODO: Vulkan? Vulkan is only selected when `-force-vulkan` is enabled, but we don't know if a nixos config supports Vulkan.....
+# TODO: Is vulkan-headers required for using `-force-vulkan`?
+# TODO: Darwin version? Impossible due to buildFSHUserEnv?
+# TODO: Mods? Do they work?
 
 let
   daggerfall-unity-unwrapped = stdenv.mkDerivation rec {
@@ -23,21 +31,15 @@ let
 
     dontConfigure = true;
     dontBuild = true;
-    dontAutoPatchElf = false;
-
-    nativeBuildInputs = [
-      # autoPatchelfHook
-    ];
-
-    buildInputs = [
-      zlib
-    ];
 
     sourceRoot = ".";
 
     installPhase = ''
-      mkdir -p "$out/bin"
-      cp -R source/* "$out/bin"
+      mkdir -p $out/libexec
+      mkdir -p $out/share/icons/hicolor/128x128/apps
+      cp -r $src/* $out/libexec
+      cp $src/DaggerfallUnity_Data/Resources/UnityPlayer.png \
+        $out/share/icons/hicolor/128x128/apps/DaggerfallUnity128.png
     '';
 
     meta = with lib; {
@@ -49,9 +51,21 @@ let
       maintainers = with maintainers; [ romatthe ];
     };
   };
-in buildFHSUserEnv {
+
+  desktopItem = makeDesktopItem rec {
+    name = "daggerfall-unity";
+    exec = name;
+    icon = "DaggerfallUnity128";
+    desktopName = "Daggerfall Unity";
+    comment = description;
+    categories = [ "Game" ];
+  };
+
+  description = "Open Source game engine for The Elder Scrolls II: Daggerfall in Unity";
+
+in buildFHSUserEnv  {
   name = "daggerfall-unity";
-  runScript = "DaggerfallUnity.x86_64";
+  runScript = "${daggerfall-unity-unwrapped}/libexec/DaggerfallUnity.x86_64";
   targetPkgs = pkgs: [
     # Daggerfall
     daggerfall-unity-unwrapped
@@ -59,6 +73,8 @@ in buildFHSUserEnv {
     alsa-lib
     libglvnd
     libpulseaudio
+    vulkan-headers
+    vulkan-loader
     zlib
     # Xorg
     xorg.libX11
@@ -71,9 +87,16 @@ in buildFHSUserEnv {
     xorg.libXxf86vm
   ];
 
+  extraInstallCommands = ''
+    mkdir -p $out/share/applications
+    cp -r ${desktopItem}/share/applications $out/share/
+    cp -r ${daggerfall-unity-unwrapped}/share/icons/ $out/share/
+  '';
+
   meta = with lib; {
     homepage = "https://www.dfworkshop.net";
-    description = "Open Source game engine for The Elder Scrolls II: Daggerfall in Unity";
+    sourceProvenance = with sourceTypes; [ binaryNativeCode ];
+    description = description;
     license = licenses.unfree;
     platforms = [ "x86_64-linux" ];
     architectures = [ "amd64" ];
