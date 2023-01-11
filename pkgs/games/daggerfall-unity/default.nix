@@ -41,15 +41,6 @@ let
       cp $src/DaggerfallUnity_Data/Resources/UnityPlayer.png \
         $out/share/icons/hicolor/128x128/apps/DaggerfallUnity128.png
     '';
-
-    meta = with lib; {
-      homepage = "https://www.dfworkshop.net";
-      description = "Open Source engine for The Elder Scrolls II: Daggerfall in Unity";
-      license = licenses.unfree;
-      platforms = [ "x86_64-linux" ];
-      architectures = [ "amd64" ];
-      maintainers = with maintainers; [ romatthe ];
-    };
   };
 
   desktopItem = makeDesktopItem rec {
