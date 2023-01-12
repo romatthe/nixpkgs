@@ -12,6 +12,7 @@
 , zlib
 # User-provides directory with mods that should end up under StreamingAssets/
 , modDir ? ./config
+, dfuVersion ? "0.14.5-beta"
  }:
 
 # TODO: Vulkan? Vulkan is only selected when `-force-vulkan` is enabled, but we don't know if a nixos config supports Vulkan.....
@@ -21,7 +22,7 @@
 let
   daggerfall-unity-unwrapped = stdenvNoCC.mkDerivation rec {
     pname = "daggerfall-unity";
-    version = "0.14.5-beta";
+    version = dfuVersion;
 
     srcs = [
       (fetchzip {
@@ -43,10 +44,8 @@ let
         fi
       done
 
-      # Cleanup
       mv source/* .
-      rm -rf source/
-      rm env-vars
+      rm -rf source/ env-vars
     '';
 
     dontConfigure = true;
@@ -99,8 +98,6 @@ let
     categories = [ "Game" ];
   };
 
-  desc = "Open Source game engine for The Elder Scrolls II: Daggerfall in Unity";
-
 in buildFHSUserEnv {
   name = "daggerfall-unity";
   runScript = "${daggerfall-unity-unwrapped}/libexec/DaggerfallUnity.x86_64";
@@ -128,14 +125,13 @@ in buildFHSUserEnv {
     mkdir -p $out/share/applications
     cp -r ${desktopItem}/share/applications $out/share/
     cp -r ${daggerfall-unity-unwrapped}/share/icons/ $out/share/
-    # rm env-vars
   '';
 
   meta = with lib; {
     homepage = "https://www.dfworkshop.net";
     description = "Open Source game engine for The Elder Scrolls II: Daggerfall in Unity";
     sourceProvenance = with sourceTypes; [ binaryNativeCode ];
-    license = licenses.mit;
+    license = licenses.unfree;
     platforms = [ "x86_64-linux" ];
     architectures = [ "amd64" ];
     maintainers = with maintainers; [ romatthe ];
