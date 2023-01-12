@@ -23,11 +23,31 @@ let
     pname = "daggerfall-unity";
     version = "0.14.5-beta";
 
-    src = fetchzip {
-      url = "https://github.com/Interkarma/daggerfall-unity/releases/download/v${version}/dfu_linux_64bit-v${version}.zip";
-      hash = "sha256-8OXIzkyVZgSbDtcB+BreFSHNJqTKP2kNRWgibWwwZtc=";
-      stripRoot = false;
-    };
+    srcs = [
+      (fetchzip {
+        url = "https://github.com/Interkarma/daggerfall-unity/releases/download/v${version}/dfu_linux_64bit-v${version}.zip";
+        hash = "sha256-8OXIzkyVZgSbDtcB+BreFSHNJqTKP2kNRWgibWwwZtc=";
+        stripRoot = false;
+      })
+      modDir
+    ];
+
+    sourceRoot = ".";
+
+    postUnpack = ''
+      for _src in $srcs; do
+        if [[ $(stripHash "$_src") != "source" ]]; then
+          # Move mod files
+          cp -r $_src/* ./source/DaggerfallUnity_Data/StreamingAssets
+          rm -rf $(stripHash "$_src")
+        fi
+      done
+
+      # Cleanup
+      mv source/* .
+      rm -rf source/
+      rm env-vars
+    '';
 
     dontConfigure = true;
     dontBuild = true;
@@ -35,43 +55,40 @@ let
     installPhase = ''
       mkdir -p $out/libexec
       mkdir -p $out/share/icons/hicolor/128x128/apps
-      cp -r $src/* $out/libexec
-      cp $src/DaggerfallUnity_Data/Resources/UnityPlayer.png \
+
+      cp -r $sourceRoot/* $out/libexec
+      cp $sourceRoot/DaggerfallUnity_Data/Resources/UnityPlayer.png \
         $out/share/icons/hicolor/128x128/apps/DaggerfallUnity128.png
+
+      rm $out/libexec/env-vars
     '';
   };
 
-  daggerfall-unity-mods = stdenvNoCC.mkDerivation rec {
-    pname = "daggerfall-unity-mods";
-    version = "1.0";
+  # daggerfall-unity-mods = stdenvNoCC.mkDerivation rec {
+  #   pname = "daggerfall-unity-mods";
+  #   version = "1.0";
 
-    src = modDir;
+  #   src = modDir;
 
-    dontUnpack = true;
-    dontConfigure = true;
-    dontBuild = true;
+  #   dontUnpack = true;
+  #   dontConfigure = true;
+  #   dontBuild = true;
 
-    installPhase = ''
-      ls -lah $src/
-      ls -lah $src/Mods
-      echo "${lib.boolToString (builtins.isPath modDir)}"
-      echo "${modDir}"
-      mkdir -p $out/libexec/DaggerfallUnity_Data/StreamingAssets
-      touch $out/libexec/DaggerfallUnity_Data/StreamingAssets/PleaseKillMe.txt
-    '' + lib.optionalString (builtins.isPath modDir) ''
-      cp -r $src/* $out/libexec/DaggerfallUnity_Data/StreamingAssets
-      touch $out/libexec/DaggerfallUnity_Data/StreamingAssets/PleaseKillMe2.txt
-      ls -lah $out/libexec/DaggerfallUnity_Data/StreamingAssets
-    '';
-  };
+  #   installPhase = ''
+  #     mkdir -p $out/libexec/DaggerfallUnity_Data/StreamingAssets
+  #   '' + lib.optionalString (builtins.isPath modDir) ''
+  #     cp -r $src/* $out/libexec/DaggerfallUnity_Data/StreamingAssets
+  #     ls -lah $out/libexec/DaggerfallUnity_Data/StreamingAssets
+  #   '';
+  # };
 
-  daggerfall-unity-merged = symlinkJoin {
-    name = "daggerfall-unity-merged";
-    paths = [
-      daggerfall-unity-unwrapped
-      daggerfall-unity-mods
-    ];
-  };
+  # daggerfall-unity-merged = symlinkJoin {
+  #   name = "daggerfall-unity-merged";
+  #   paths = [
+  #     daggerfall-unity-unwrapped
+  #     daggerfall-unity-mods
+  #   ];
+  # };
 
   desktopItem = makeDesktopItem {
     name = "daggerfall-unity";
@@ -86,7 +103,7 @@ let
 
 in buildFHSUserEnv {
   name = "daggerfall-unity";
-  runScript = "${daggerfall-unity-merged}/libexec/DaggerfallUnity.x86_64";
+  runScript = "${daggerfall-unity-unwrapped}/libexec/DaggerfallUnity.x86_64";
   targetPkgs = pkgs: [
     # Daggerfall
     daggerfall-unity-unwrapped
@@ -111,6 +128,7 @@ in buildFHSUserEnv {
     mkdir -p $out/share/applications
     cp -r ${desktopItem}/share/applications $out/share/
     cp -r ${daggerfall-unity-unwrapped}/share/icons/ $out/share/
+    # rm env-vars
   '';
 
   meta = with lib; {
