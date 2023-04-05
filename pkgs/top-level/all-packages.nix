@@ -2154,6 +2154,8 @@ with pkgs;
 
   darcnes = callPackage ../applications/emulators/darcnes { };
 
+  dbgl = callPackage ../applications/emulators/dbgl { };
+
   desmume = callPackage ../applications/emulators/desmume { };
 
   dgen-sdl = callPackage ../applications/emulators/dgen-sdl { };
