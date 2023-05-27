@@ -37116,6 +37116,8 @@ with pkgs;
 
   tcl2048 = callPackage ../games/tcl2048 { };
 
+  tdm = callPackage ../games/tdm { };
+
   the-legend-of-edgar = callPackage ../games/the-legend-of-edgar { };
 
   the-powder-toy = callPackage ../games/the-powder-toy {
