@@ -37049,6 +37049,9 @@ with pkgs;
   quakespasm = callPackage ../games/quakespasm {
     inherit (darwin.apple_sdk.frameworks) Cocoa CoreAudio CoreFoundation IOKit OpenGL;
   };
+  quakespasm-spiked = callPackage ../games/quakespasm/spiked.nix {
+    inherit (darwin.apple_sdk.frameworks) Cocoa CoreAudio CoreFoundation IOKit OpenGL;
+  };
   vkquake = callPackage ../games/quakespasm/vulkan.nix {
     inherit (darwin) moltenvk;
   };
