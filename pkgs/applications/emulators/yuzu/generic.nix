@@ -54,6 +54,9 @@ let
     url = "https://github.com/lat9nq/tzdb_to_nx/releases/download/${tzinfoVersion}/${tzinfoVersion}.zip";
     hash = "sha256-yv8ykEYPu9upeXovei0u16iqQ7NasH6873KnQy4+KwI=";
   };
+  capitalize = str: lib.concatStrings (lib.lists.imap0 (i: v: if i == 0 then (lib.toUpper v) else v) (lib.strings.stringToCharacters str));
+  yuzu-bin = "yuzu" + lib.optionalString (branch != "mainline") "-${branch}";
+  yuzu-name = "Yuzu" + lib.optionalString (branch != "mainline") " " + (lib.strings.concatMapStringsSep " " (x: capitalize x) (lib.strings.splitString "-" branch));
 in stdenv.mkDerivation {
   pname = "yuzu-${branch}";
 
@@ -159,6 +162,17 @@ in stdenv.mkDerivation {
     ln -sf ${compat-list} ./dist/compatibility_list/compatibility_list.json
   '';
 
+  postInstall = ''
+    mv $out/bin/yuzu      $out/bin/${yuzu-bin}
+    mv $out/bin/yuzu-cmd  $out/bin/${yuzu-bin}-cmd
+    mv $out/bin/yuzu-room $out/bin/${yuzu-bin}-room
+
+    substituteInPlace $out/share/applications/org.yuzu_emu.yuzu.desktop \
+      --replace 'TryExec=yuzu' 'TryExec=${yuzu-bin}' \
+      --replace 'Exec=yuzu' 'Exec=${yuzu-bin}' \
+      --replace 'Name=yuzu' 'Name=${yuzu-name}'
+  '';
+
   passthru.updateScript = ./update.sh;
 
   meta = with lib; {
@@ -170,7 +184,7 @@ in stdenv.mkDerivation {
       Using the mainline branch is recommended for general usage.
       Using the early-access branch is recommended if you would like to try out experimental features, with a cost of stability.
     '';
-    mainProgram = "yuzu";
+    mainProgram = yuzu-bin;
     platforms = [ "x86_64-linux" ];
     license = with licenses; [
       gpl3Plus
