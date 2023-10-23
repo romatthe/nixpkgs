@@ -318,6 +318,8 @@ in {
 
     apfs = callPackage ../os-specific/linux/apfs { };
 
+    avmvc12 = callPackage ../os-specific/linux/avmvc12 { };
+
     ax99100 = callPackage ../os-specific/linux/ax99100 {};
 
     batman_adv = callPackage ../os-specific/linux/batman-adv {};
